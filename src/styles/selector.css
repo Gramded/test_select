@@ -6,7 +6,15 @@ p {
     margin: 0;
 }
 
-
+.btn {
+    background: none;
+    border: none;
+    font: 600 18px 'Source Sans Pro', sans-serif;
+    padding: 10px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.5s;
+}
 
 .container {
     display: flex;
@@ -115,6 +123,29 @@ p {
     transition: 0.5s;
 }
 
+.select-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.btn-access {
+    background-color: #a0fc77;
+    transition: 0.5s;
+}
+
+.btn-access:hover {
+    background-color: rgba(141, 208, 119, 0.82);
+    transition: 0.5s;
+}
+
+.btn-clean:hover {
+    background: lightcoral;
+    transition: 0.5s;
+}
+
+
+
 .close {
     display: none;
 }
@@ -122,4 +153,3 @@ p {
 .visually-hiden {
     display: none;
 }
-
