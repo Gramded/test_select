@@ -177,8 +177,6 @@ function clearSelectedOptions(event) {
     let fakeSelect = document.getElementById(`list-for-${event.target.dataset.btnto}`);
     let fakeSelectOptionsArr = fakeSelect.children;
 
-    console.log(fakeSelectOptionsArr)
-
     for (let i = 0; i < selectOptionsArr.length; i++) {
         if (selectOptionsArr[i].selected) {selectOptionsArr[i].removeAttribute('selected')};
         if (fakeSelectOptionsArr[i].dataset.selected === 'true') {fakeSelectOptionsArr[i].dataset.selected = 'false'; fakeSelectOptionsArr[i].children[0].innerHTML = "&#8226;"}
@@ -278,7 +276,7 @@ function showOptionsList (event) {
                 }
             }
         }
-        console.log(mainParent(parents))
+       
         parentDataSet = mainParent(parents).dataset;
         parentDataSet.show === 'active' ? parentDataSet.show = 'disable': parentDataSet.show = 'active';
         parentDataSet.show === 'active' ? mainParent(parents).innerHTML = mainParent(parents).innerHTML.replace('Показать', 'Скрыть') : mainParent(parents).innerHTML = mainParent(parents).innerHTML.replace('Скрыть', 'Показать')
