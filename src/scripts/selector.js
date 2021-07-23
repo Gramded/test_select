@@ -73,17 +73,11 @@ const selectorBlocksCreator = (selectorName = "Имя селектора", selec
     let fakeSelectArr = document.querySelector(`[id="list-for-${place}"]`);
 
 
-    //______________Блок при загрузке страницы определяет вложенные селекты и включает их__________
-    //
-    //
-    // for (let i = 0; i < selectedOptions.length; i++) {
-    // selectSelectedFromLevels(fakeSelectArr, selectOptionsArr.indexOf(selectedOptions[i]), fakeSelectArr[i].dataset.level)
-    // }
-
-
     for (let i = 0; i < fakeSelectArr.children.length; i++) {
         selectGrupFromLevels(fakeSelectArr, i, fakeSelectArr.children[i].dataset.level)
     }
+
+    addClass();
 };
 
 const selectorInfoCreator = (options, textLength = false) => {
@@ -97,7 +91,7 @@ const selectorInfoCreator = (options, textLength = false) => {
     }
     return textConcat
 };
-//+++++++++++++++++Не удалять++++++++++++++
+
 const selectSelectedFromLevels = (optionsArr, start, higerLevel) => {
 
     for (let i = start+1; i < optionsArr.length; i++) {
@@ -121,7 +115,6 @@ const selectGrupFromLevels = (optionsArrList, start, higerLevel) => {
             return false
         }
     }
-    addClass();
 };
 
 function addClass() {
@@ -204,6 +197,7 @@ function openChild(event) {
     event.target.removeEventListener('click', openChild);
     event.target.addEventListener('click', closeChild)
 }
+
 function addClassChildFun(parentName) {
     let children = [...document.querySelectorAll(`[data-child="${parentName}"]`)]
 
@@ -216,9 +210,11 @@ function addClassChildFun(parentName) {
 function removeClassChildFun(parentName) {
     let children = [...document.querySelectorAll(`[data-child="${parentName}"]`)]
 
+
+
     for (let i = 0; i < children.length; i++) {
         children[i].classList.remove('close')
-        removeClassChildFun(children[i].dataset.parent)
+        if ([...children[i].children[1].classList].indexOf('close-child') == -1)  removeClassChildFun(children[i].dataset.parent)
     }
 }
 
@@ -261,8 +257,7 @@ function changeSelect(fakeSelect) {
     changeText(selectorInfoCreator(selectedOptionArr, 75), document.getElementById(`info-tag-${selectForList.getAttribute('name')}`));
     changeTitle(selectorInfoCreator(selectedOptionArr, false), document.getElementById(`info-tag-${selectForList.getAttribute('name')}`));
     //++++++++++Важная строчка 1+++++++++++++
-    selectSelectedFromLevels([...fakeSelect.parentElement.children], [...fakeSelect.parentElement.children].indexOf(fakeSelect), fakeSelectDataset.level)
-
+    if (selectForList.dataset.multiclick) {selectSelectedFromLevels([...fakeSelect.parentElement.children], [...fakeSelect.parentElement.children].indexOf(fakeSelect), fakeSelectDataset.level)}
 
 }
 
@@ -306,4 +301,3 @@ function fireEvent(element,event){
 }
 
 customSelect();
-
