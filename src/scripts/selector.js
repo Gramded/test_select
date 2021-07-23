@@ -35,15 +35,19 @@ const selectorBlocksCreator = (selectorName = "Имя селектора", selec
                     data-optionvalue="${element.value}" 
                     data-level="${element.dataset.level ? element.dataset.level : 1}"
                     data-selected="${element.selected ? 'true' : 'false'}"
-                    onclick="closeChild(event)"
+      
                     style="margin-left: ${element.dataset.level ? element.dataset.level*20+'px' : 0}"> 
                         <div 
                         onclick="fakeSelectClick(event)"
                         style="left: ${element.dataset.level ? element.dataset.level*-20+'px' : 0}" 
                         class="fake-before" data-fakebefore="${place}-${element.value}">
                             ${element.selected ? "&#10003;" : "&#8226;"}
-                        </div> 
-                    ${element.label} 
+                        </div>
+                    <div
+                    onclick="closeChild(event)"
+                    class="option-list-item-text">     
+                    ${element.label}
+                    </div>  
                 </div>`
     }).join('')}</div>`;
 
@@ -60,10 +64,21 @@ const selectorBlocksCreator = (selectorName = "Имя селектора", selec
 
     document.body.insertAdjacentHTML('beforeend', selectorBlock);
 
-    let fakeSelectArr = document.querySelector(`[id="list-for-${place}"]`).children;
 
-    for (let i = 0; i < fakeSelectArr.length; i++) {
-        selectGrupFromLevels(fakeSelectArr, i, fakeSelectArr[i].dataset.level)
+
+    let fakeSelectArr = document.querySelector(`[id="list-for-${place}"]`);
+
+
+    //______________Блок при загрузке страницы определяет вложенные селекты и включает их__________
+    //
+    //
+    // for (let i = 0; i < selectedOptions.length; i++) {
+    // selectSelectedFromLevels(fakeSelectArr, selectOptionsArr.indexOf(selectedOptions[i]), fakeSelectArr[i].dataset.level)
+    // }
+
+
+    for (let i = 0; i < fakeSelectArr.children.length; i++) {
+        selectGrupFromLevels(fakeSelectArr, i, fakeSelectArr.children[i].dataset.level)
     }
 };
 
@@ -78,31 +93,47 @@ const selectorInfoCreator = (options, textLength = false) => {
     }
     return textConcat
 };
-
-const selectGroupFromLevels = (optionsArr, start, higerLevel) => {
+//+++++++++++++++++Не удалять++++++++++++++
+const selectSelectedFromLevels = (optionsArr, start, higerLevel) => {
 
     for (let i = start+1; i < optionsArr.length; i++) {
         if (optionsArr[i].dataset.level > higerLevel && optionsArr[i].dataset.selected !== optionsArr[start].dataset.selected) {
-            chengeSelect(optionsArr[i]);
+            changeSelect(optionsArr[i]);
         } else if (optionsArr[i].dataset.level <= higerLevel) {
             return false
         }
     }
-//    мне попадает массив аргументов и я прохожусь от того, что вызвал вниз, включая все, у которых лвл ниже
 };
 
-const selectGrupFromLevels = (optionsArr, start, higerLevel) => {
+const selectGrupFromLevels = (optionsArrList, start, higerLevel) => {
+    let optionSelectName = optionsArrList.id.replace('list-for-', '')
+    let optionsArr = optionsArrList.children;
 
     for (let i = start+1; i < optionsArr.length; i++) {
         if (optionsArr[i].dataset.level > higerLevel) {
-            optionsArr[start].dataset.parent = optionsArr[start].dataset.optionvalue;
+            optionsArr[start].dataset.parent = `${optionsArr[start].dataset.optionvalue}-${optionSelectName}`;
             createChild(optionsArr[i], optionsArr[start].dataset.optionvalue);
         } else {
             return false
         }
     }
-//    мне попадает массив аргументов и я прохожусь от того, что вызвал вниз, включая все, у которых лвл ниже
+    addClass();
 };
+
+function addClass() {
+    let arr = [...document.querySelectorAll('.option-list-item-text')];
+
+    arr.forEach(el => {
+        console.log(el, el.dataset.parent)
+        if (!el.parentElement.dataset.parent) {el.classList.remove('option-list-item-text')}
+    })
+}
+
+const createChild = (fakeSelector, parentName) => {
+    fakeSelector.dataset.child = `${parentName}-${fakeSelector.parentElement.id.replace('list-for-', '')}`;
+}
+
+
 
 
 const getSelectedOptionsArr = (select, keyForOption = false, keyForSelect = false) => {
@@ -119,27 +150,28 @@ const getSelectedOptionsArr = (select, keyForOption = false, keyForSelect = fals
     return keyForSelect ? selectedOptions[keyForSelect] : selectedOptions;
 };
 
-const chengeCounter = (count, counter) => {
+const changeCounter = (count, counter) => {
     counter.innerText = count;
 }
 
-const chengeText = (text, textArea) => {
+const changeText = (text, textArea) => {
     textArea.innerText = text;
 }
-
-const createChild = (fakeSelector, parentName) => {
-    fakeSelector.dataset.child = parentName;
+const changeTitle = (text, textArea) => {
+    textArea.setAttribute('title', text);
 }
 
 function closeChild(event) {
-    let parentName = event.target.dataset.parent;
+    let parentName = event.target.parentElement.dataset.parent;
+    event.target.classList.add('close-child');
     addClassChildFun(parentName)
     event.target.removeEventListener('click', closeChild);
     event.target.addEventListener('click', openChild)
 }
 
 function openChild(event) {
-    let parentName = event.target.dataset.parent;
+    let parentName = event.target.parentElement.dataset.parent;
+    event.target.classList.remove('close-child');
     removeClassChildFun(parentName)
     event.target.removeEventListener('click', openChild);
     event.target.addEventListener('click', closeChild)
@@ -147,36 +179,36 @@ function openChild(event) {
 function addClassChildFun(parentName) {
     let children = [...document.querySelectorAll(`[data-child="${parentName}"]`)]
 
-    if (!children.length) {
-        return false
-    }
-
     for (let i = 0; i < children.length; i++) {
         children[i].classList.add('close')
-        children[i].dataset.parent ? addClassChildFun(children[i].dataset.parent) : false
+        addClassChildFun(children[i].dataset.parent)
     }
 }
+
 function removeClassChildFun(parentName) {
     let children = [...document.querySelectorAll(`[data-child="${parentName}"]`)]
 
-    if (!children.length) {
-        return false
-    }
-
     for (let i = 0; i < children.length; i++) {
         children[i].classList.remove('close')
-        children[i].dataset.parent ? removeClassChildFun(children[i].dataset.parent) : false
+        removeClassChildFun(children[i].dataset.parent)
     }
 }
 
 function fakeSelectClick(event) {
-    let parentForListId = event.target.parentElement.id.replace('list-for-', '');
+    let fakeSelect = event.target;
+    let parentForList = event.target.parentElement;
+    let parentForListId = parentForList.id.replace('list-for-', '');
+    if (parentForListId === "") {
+        fakeSelect = event.target.parentElement;
+        parentForList = event.target.parentElement;
+        parentForListId = parentForList.parentElement.id.replace('list-for-', '')
+    }
     let selectForList = document.querySelector(`[name=${parentForListId}]`);
-    chengeSelect(event.target)
+    changeSelect(fakeSelect)
     fireEvent(selectForList,'change');
 }
 
-function chengeSelect(fakeSelect) {
+function changeSelect(fakeSelect) {
     let fakeSelectDataset = fakeSelect.dataset;
     let parentForListId = fakeSelect.parentElement.id.replace('list-for-', '');
     let selectForList = document.querySelector(`[name=${parentForListId}]`);
@@ -197,10 +229,11 @@ function chengeSelect(fakeSelect) {
     }
 
     let selectedOptionArr = getSelectedOptionsArr(selectForList);
-    chengeCounter(selectedOptionArr.length, document.getElementById(`counter-${selectForList.getAttribute('name')}`));
-    chengeText(selectorInfoCreator(selectedOptionArr, 75), document.getElementById(`info-tag-${selectForList.getAttribute('name')}`));
-
-    selectGroupFromLevels([...fakeSelect.parentElement.children], [...fakeSelect.parentElement.children].indexOf(fakeSelect), fakeSelectDataset.level)
+    changeCounter(selectedOptionArr.length, document.getElementById(`counter-${selectForList.getAttribute('name')}`));
+    changeText(selectorInfoCreator(selectedOptionArr, 75), document.getElementById(`info-tag-${selectForList.getAttribute('name')}`));
+    changeTitle(selectorInfoCreator(selectedOptionArr, false), document.getElementById(`info-tag-${selectForList.getAttribute('name')}`));
+    //++++++++++Важная строчка 1+++++++++++++
+    selectSelectedFromLevels([...fakeSelect.parentElement.children], [...fakeSelect.parentElement.children].indexOf(fakeSelect), fakeSelectDataset.level)
 
 
 }
@@ -245,5 +278,7 @@ function fireEvent(element,event){
 }
 
 customSelect();
+
+
 
 
