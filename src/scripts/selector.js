@@ -60,6 +60,10 @@ const selectorBlocksCreator = (selectorName = "Имя селектора", selec
             </div>
             ${selectorInfoTag}
             ${optionsList}
+            <div class="select-footer">
+            <button class="btn btn-access" onclick="sendSelectedOptions(event)" data-btnto="${place}">Применить</button>
+            <button class="btn btn-clean" onclick="clearSelectedOptions(event)" data-btnto="${place}">Очистить</button>
+            </div>
         </div>`;
 
     document.body.insertAdjacentHTML('beforeend', selectorBlock);
@@ -124,7 +128,6 @@ function addClass() {
     let arr = [...document.querySelectorAll('.option-list-item-text')];
 
     arr.forEach(el => {
-        console.log(el, el.dataset.parent)
         if (!el.parentElement.dataset.parent) {el.classList.remove('option-list-item-text')}
     })
 }
@@ -159,6 +162,28 @@ const changeText = (text, textArea) => {
 }
 const changeTitle = (text, textArea) => {
     textArea.setAttribute('title', text);
+}
+
+function sendSelectedOptions(event) {
+    let select = document.querySelector(`[name=${event.target.dataset.btnto}]`)
+
+    let selectedOptArr = getSelectedOptionsArr(select);
+    console.log(selectedOptArr)
+}
+
+function clearSelectedOptions(event) {
+    let select = document.querySelector(`[name=${event.target.dataset.btnto}]`);
+    let selectOptionsArr = select.options;
+    let fakeSelect = document.getElementById(`list-for-${event.target.dataset.btnto}`);
+    let fakeSelectOptionsArr = fakeSelect.children;
+
+    console.log(fakeSelectOptionsArr)
+
+    for (let i = 0; i < selectOptionsArr.length; i++) {
+        if (selectOptionsArr[i].selected) {selectOptionsArr[i].removeAttribute('selected')};
+        if (fakeSelectOptionsArr[i].dataset.selected === 'true') {fakeSelectOptionsArr[i].dataset.selected = 'false'; fakeSelectOptionsArr[i].children[0].innerHTML = "&#8226;"}
+    }
+
 }
 
 function closeChild(event) {
